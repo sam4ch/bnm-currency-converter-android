@@ -50,6 +50,7 @@ class ConverterHome extends StatefulWidget {
 
 class _HomeState extends State<ConverterHome> {
   final _amount = TextEditingController(text: '100');
+  final _scroll = ScrollController();
   String _from = 'EUR', _to = 'MDL';
   DateTime _date = calendarDay(DateTime.now());
   int _screen = 0, _progress = 0, _total = 0;
@@ -60,6 +61,7 @@ class _HomeState extends State<ConverterHome> {
   @override
   void dispose() {
     _amount.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -196,6 +198,7 @@ class _HomeState extends State<ConverterHome> {
           _screen = index;
           _reset();
         });
+        if (_scroll.hasClients) _scroll.jumpTo(0);
         if (index > 0) _load(refresh: false);
       },
       destinations: const [
@@ -212,11 +215,12 @@ class _HomeState extends State<ConverterHome> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 680),
           child: ListView(
+            controller: _scroll,
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             children: [
               Text(
                 _screen == 0
-                  ? 'Конвертер валют'
+                    ? 'Конвертер валют'
                     : _screen == 1
                     ? 'Динамика за неделю'
                     : 'Динамика за месяц',
@@ -472,8 +476,10 @@ class _HomeState extends State<ConverterHome> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 16,
+              runSpacing: 8,
               children: [
                 Text(
                   '$_from → $_to',

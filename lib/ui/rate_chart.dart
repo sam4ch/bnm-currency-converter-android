@@ -46,7 +46,7 @@ class _Chart extends CustomPainter {
         : (max - min) * .15;
     min -= padding;
     max += padding;
-    final area = Rect.fromLTRB(4, 18, size.width - 4, size.height - 16);
+    final area = Rect.fromLTRB(56, 18, size.width - 4, size.height - 16);
     final grid = Paint()..color = const Color(0xffe5eaef);
     for (var i = 0; i < 4; i++) {
       final y = area.top + area.height * i / 3;
@@ -58,7 +58,7 @@ class _Chart extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      text.paint(canvas, Offset(area.left, y - 13));
+      text.paint(canvas, Offset(0, y - 6));
     }
     Offset position(RatePoint p) => Offset(
       area.left +
