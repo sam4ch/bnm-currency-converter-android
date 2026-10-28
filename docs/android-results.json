@@ -1,0 +1,42 @@
+[
+  {
+    "name": "online BNM conversion",
+    "passed": true,
+    "details": "100 EUR = 2017.60 MDL, publication 28.10.2026"
+  },
+  {
+    "name": "month history",
+    "passed": true,
+    "details": "30 real daily observations loaded from BNM"
+  },
+  {
+    "name": "month statistics",
+    "passed": true,
+    "details": "min/max/mean, absolute and percentage change, falling trend visible"
+  },
+  {
+    "name": "week history and navigation",
+    "passed": true,
+    "details": "7 real points, tab switches reset scroll"
+  },
+  {
+    "name": "airplane mode after force-stop",
+    "passed": true,
+    "details": "persistent cache provides correct conversion and visible publication date"
+  },
+  {
+    "name": "offline month after restart",
+    "passed": true,
+    "details": "all 30 cached points restored in new app process"
+  },
+  {
+    "name": "offline week after restart",
+    "passed": true,
+    "details": "7 cached points restored without internet"
+  },
+  {
+    "name": "network recovery",
+    "passed": true,
+    "details": "live source works again after airplane mode disabled"
+  }
+]
