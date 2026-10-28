@@ -1,5 +1,5 @@
 name: currency_insights
-description: "A new Flutter project."
+description: "Android BNM currency converter with weekly and monthly analytics."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -28,12 +28,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_localizations:
+    sdk: flutter
   flutter:
     sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  http: ^1.6.0
+  xml: ^7.1.0
+  shared_preferences: ^2.5.6
 
 dev_dependencies:
   flutter_test:

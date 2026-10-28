@@ -1,17 +1,30 @@
-# currency_insights
+# Курс BNM для Android
 
-A new Flutter project.
+Лабораторная 4: Flutter/Dart, новый отдельный проект. Конвертер валют и
+аналитика пары за 7/30 дней. Код лабораторной 3 на C# не копировался и не переводился.
 
-## Getting Started
+Три экрана: конвертер, неделя и месяц. На аналитике — график, минимум,
+максимум, среднее, абсолютное/процентное изменение и направление тенденции.
+История загружается по датам из BNM; данные сохраняются локально.
 
-This project is a starting point for a Flutter application.
+## Запуск
 
-A few resources to get you started if this is your first Flutter project:
+Требуются Flutter SDK, Android SDK и Android-эмулятор или телефон.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```powershell
+flutter pub get
+flutter emulators --launch Pixel_5
+flutter run -d emulator-5554
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Команды выполняются в каталоге с `pubspec.yaml`. Подробности и критерии:
+[требования](docs/REQUIREMENTS.md).
+
+Проверено на этапе реализации: APK собран, установлен на Pixel 5 API 36,
+реальная конвертация 100 EUR → 2017.60 MDL за 28.10.2026. `dart analyze lib`:
+замечаний нет. Автоматические тесты и итоговый отчёт — отдельный этап.
+
+Flutter 3.47.6, Dart 3.13.5. В этой версии `flutter analyze` падает на пути с
+кириллицей; работает `dart analyze` ([issue Flutter](https://github.com/flutter/flutter/issues/191309)).
+Для Gradle в каталоге `4 курс` установлен документированный параметр
+`android.overridePathCheck=true`.
