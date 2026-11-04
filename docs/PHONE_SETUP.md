@@ -9,7 +9,7 @@ Requires Android 7.0 / API 24 or later.
 3. Copy the APK to the phone's **Download** folder. You can also transfer the file through cloud storage.
 4. On the phone, open **Files → Downloads**, tap the APK, and select **Install**.
 5. If Android asks for permission, allow installation from this source for the selected file manager. The setting's name depends on the manufacturer.
-6. Open **Курс BNM** (BNM Rates). The first exchange-rate download requires internet access; downloaded data is saved for offline use.
+6. Launch the installed app. The first exchange-rate download requires internet access; downloaded data is saved for offline use.
 
 This method does not require Flutter, Android Studio, or developer mode on
 the phone. Once installed, the app runs independently and you can disconnect
@@ -28,7 +28,7 @@ its local cache.
 4. Open the lab folder in VS Code. In the PowerShell terminal, run:
 
 ```powershell
-Set-Location -LiteralPath 'C:\Downloads\Study\4 курс\PSI\lab4'
+# Run from the repository root.
 & 'C:\Users\SamirPula\flutter\bin\flutter.bat' pub get
 & 'C:\Users\SamirPula\flutter\bin\flutter.bat' devices
 ```

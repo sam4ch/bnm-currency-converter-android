@@ -35,7 +35,7 @@ Install the Flutter/Dart extensions, Flutter SDK, and Android SDK. Open the
 project folder, then run these commands in a PowerShell terminal:
 
 ```powershell
-Set-Location -LiteralPath 'C:\Downloads\Study\4 курс\PSI\lab4'
+# Run from the repository root.
 flutter pub get
 flutter devices
 flutter run -d emulator-5554
@@ -69,7 +69,7 @@ To build it from source:
 
 The script builds in a temporary directory with an ASCII path and copies the APK
 back to `artifacts` without moving the source files. This is needed for Flutter
-3.47.6 on Windows: its AOT compiler cannot read the Cyrillic `4 курс` path.
+3.47.6 on Windows: its AOT compiler cannot read project paths containing Cyrillic characters.
 For a project path without Cyrillic characters, the standard
 `flutter build apk --release` command also works.
 The `artifacts` directory is not committed. The file size, SHA256, and build time
@@ -129,7 +129,7 @@ REPORT.md         report on AI use, fixes, and the language change
 ```
 
 - [Report](REPORT.md), [requirements](docs/REQUIREMENTS.md), [Android validation](docs/ANDROID_VALIDATION.md), and [phone setup](docs/PHONE_SETUP.md).
-- [Implementation PR #1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1) and [test PR #2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
+- [Implementation PR #1](https://github.com/sam4ch/bnm-currency-converter-android/pull/1) and [test PR #2](https://github.com/sam4ch/bnm-currency-converter-android/pull/2).
 - Generation and review were performed with Codex in this chat. The exact model name selected in the UI was not recorded.
 - Validated with Flutter 3.47.6 / Dart 3.13.5, Pixel 5 AVD, and Android 16 / API 36.
 

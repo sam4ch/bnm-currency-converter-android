@@ -13,7 +13,7 @@ and interface were implemented afresh in Dart. The small Kotlin MainActivity
 file is Flutter's generated Android entry point; application logic and screens
 are written in Dart.
 
-Repository: [CurrencyConverter-Mobile-Lab4](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4).
+Repository: [bnm-currency-converter-android](https://github.com/sam4ch/bnm-currency-converter-android).
 
 ## Data source and limitations
 
@@ -101,7 +101,7 @@ and fetched a real BNM rate.
 | Scroll position when switching tabs | After viewing statistics, the next screen opened at the previous scroll position. A ScrollController now resets the position on tab changes; a widget test verifies this. |
 | Chart axis labels overlapped the line | Reviewing an Android screenshot led to reserving a separate left margin for labels. |
 | `flutter analyze` fails on Cyrillic paths | An LSP protocol failure in Flutter 3.47.6 is a [known issue](https://github.com/flutter/flutter/issues/191309). Validation uses `dart analyze` without disabling analysis rules. |
-| Gradle rejects the `4 курс` path | The `android.overridePathCheck=true` setting suggested by Gradle itself was added to gradle.properties; the debug APK built successfully. |
+| Gradle rejects the local Cyrillic path | The `android.overridePathCheck=true` setting suggested by Gradle itself was added to gradle.properties; the debug APK built successfully. |
 | Release AOT cannot read the Cyrillic path | scripts/build-apk.ps1 copies only the current project source into a temporary ASCII-path directory and returns the APK to artifacts. The original project is neither moved nor deleted. The release build succeeded. |
 
 ## Working with AI in a new language
@@ -163,6 +163,6 @@ repository.
 ## Git
 
 - `b38daf6`: initial Android scaffold and requirements.
-- `feature/android-converter`: new implementation; [PR #1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1).
-- `tests/android-converter`: unit/widget tests, fixes, build script, and report; [PR #2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
+- `feature/android-converter`: new implementation; [PR #1](https://github.com/sam4ch/bnm-currency-converter-android/pull/1).
+- `tests/android-converter`: unit/widget tests, fixes, build script, and report; [PR #2](https://github.com/sam4ch/bnm-currency-converter-android/pull/2).
 - Changes are merged into main through PRs, preserving the history of each stage.
