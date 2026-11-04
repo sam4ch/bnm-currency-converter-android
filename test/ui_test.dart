@@ -9,7 +9,16 @@ import 'package:currency_insights/domain/rates.dart';
 import 'repository_test.dart' show MemoryStore, FakeSource, table;
 
 void main() {
-  Future<FakeSource> mount(WidgetTester tester, {FakeSource? source}) async {
+  Future<FakeSource> mount(
+    WidgetTester tester, {
+    FakeSource? source,
+    bool reducedMotion = true,
+  }) async {
+    tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+        FakeAccessibilityFeatures(disableAnimations: reducedMotion);
+    addTearDown(
+      tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
+    );
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -18,7 +27,11 @@ void main() {
     await tester.pumpWidget(
       CurrencyApp(repository: RateRepository(fake, MemoryStore())),
     );
-    await tester.pumpAndSettle();
+    if (reducedMotion) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump(const Duration(seconds: 1));
+    }
     return fake;
   }
 
@@ -86,6 +99,7 @@ void main() {
   ) async {
     final pending = Completer<RateTable?>();
     await mount(tester, source: FakeSource((_) => pending.future));
+    await tester.ensureVisible(find.byKey(const Key('convert')));
     await tester.tap(find.byKey(const Key('convert')));
     await tester.pump();
     expect(
@@ -107,6 +121,43 @@ void main() {
     expect(find.text('Нет данных за этот период'), findsOneWidget);
     expect(find.text('Повторить загрузку'), findsOneWidget);
     expect(find.byKey(const Key('trend')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('floating artwork moves while form remains interactive', (
+    tester,
+  ) async {
+    await mount(tester, reducedMotion: false);
+    final motion = find.byKey(const Key('floatingCurrencyMotion'));
+    final before = List<double>.of(
+      tester.widget<Transform>(motion).transform.storage,
+    );
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.widget<Transform>(motion).transform.storage, isNot(before));
+    await tester.enterText(find.byKey(const Key('amount')), '25');
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const Key('convert')));
+    await tester.tap(find.byKey(const Key('convert')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('500,00 MDL'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Android reduced motion stops decorative movement', (
+    tester,
+  ) async {
+    await mount(tester, reducedMotion: false);
+    tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+        FakeAccessibilityFeatures(disableAnimations: true);
+    await tester.pumpAndSettle();
+    final motion = find.byKey(const Key('floatingCurrencyMotion'));
+    final before = List<double>.of(
+      tester.widget<Transform>(motion).transform.storage,
+    );
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.widget<Transform>(motion).transform.storage, before);
+    expect(tester.binding.hasScheduledFrame, isFalse);
     expect(tester.takeException(), isNull);
   });
 }

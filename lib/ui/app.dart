@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../data/rate_repository.dart';
@@ -6,6 +7,7 @@ import '../data/bnm_client.dart';
 import '../domain/numbers.dart';
 import '../domain/rates.dart';
 import 'rate_chart.dart';
+import 'animated_background.dart';
 
 class CurrencyApp extends StatelessWidget {
   final RateRepository repository;
@@ -19,22 +21,54 @@ class CurrencyApp extends StatelessWidget {
     localizationsDelegates: GlobalMaterialLocalizations.delegates,
     theme: ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff008775)),
-      scaffoldBackgroundColor: const Color(0xfff3f6f8),
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xff6be3bf),
+        brightness: Brightness.dark,
+        primary: const Color(0xff6be3bf),
+        surface: const Color(0xff13283a),
+      ),
+      scaffoldBackgroundColor: const Color(0xff0b1c2c),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xfff3f6f8),
+        backgroundColor: Color(0xff0b1c2c),
         surfaceTintColor: Colors.transparent,
+        foregroundColor: Color(0xfff4f8ff),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: const Color(0xf21a3043),
+        labelStyle: const TextStyle(color: Color(0xffb4c8d8)),
+        helperStyle: const TextStyle(color: Color(0xff8ba5b9)),
+        floatingLabelStyle: const TextStyle(color: Color(0xff6be3bf)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xffdce5eb)),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Color(0x22dce5eb)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Color(0x22dce5eb)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Color(0xff6be3bf), width: 1.5),
         ),
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: Colors.white,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xff0b1c2c),
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: const Color(0xff6be3bf).withValues(alpha: .16),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+            color: states.contains(WidgetState.selected)
+                ? const Color(0xff6be3bf)
+                : const Color(0xff91a9bc),
+          ),
+        ),
       ),
     ),
     home: ConverterHome(repository: repository),
@@ -54,6 +88,7 @@ class _HomeState extends State<ConverterHome> {
   String _from = 'EUR', _to = 'MDL';
   DateTime _date = calendarDay(DateTime.now());
   int _screen = 0, _progress = 0, _total = 0;
+  double _swapTurns = 0;
   bool _busy = false;
   String? _error, _converted;
   RateResult? _rate;
@@ -175,7 +210,7 @@ class _HomeState extends State<ConverterHome> {
     appBar: AppBar(
       title: const Row(
         children: [
-          Icon(Icons.currency_exchange, color: Color(0xff008775)),
+          Icon(Icons.currency_exchange, color: Color(0xff6be3bf)),
           SizedBox(width: 10),
           Text('Курс', style: TextStyle(fontWeight: FontWeight.w800)),
         ],
@@ -194,6 +229,7 @@ class _HomeState extends State<ConverterHome> {
       selectedIndex: _screen,
       onDestinationSelected: (index) {
         if (_busy || _screen == index) return;
+        HapticFeedback.selectionClick();
         setState(() {
           _screen = index;
           _reset();
@@ -210,110 +246,173 @@ class _HomeState extends State<ConverterHome> {
         ),
       ],
     ),
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 680),
-          child: ListView(
-            controller: _scroll,
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            children: [
-              Text(
-                _screen == 0
-                    ? 'Конвертер валют'
-                    : _screen == 1
-                    ? 'Динамика за неделю'
-                    : 'Динамика за месяц',
-                style: const TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -.7,
-                  color: Color(0xff142638),
+    body: FloatingCurrencyBackground(
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 680),
+            child: ListView(
+              controller: _scroll,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              children: [
+                _hero(),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(child: _currency(true)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: IconButton(
+                        key: const Key('swap'),
+                        tooltip: 'Поменять валюты',
+                        onPressed: _busy
+                            ? null
+                            : () {
+                                setState(() {
+                                  _swapTurns += .5;
+                                  final old = _from;
+                                  _from = _to;
+                                  _to = old;
+                                  _reset();
+                                });
+                                HapticFeedback.selectionClick();
+                                if (_screen > 0) _load(refresh: false);
+                              },
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(0xff6be3bf)
+                              .withValues(alpha: .14),
+                          foregroundColor: const Color(0xff6be3bf),
+                        ),
+                        icon: AnimatedRotation(
+                          turns: _swapTurns,
+                          duration: MediaQuery.disableAnimationsOf(context)
+                              ? Duration.zero
+                              : const Duration(milliseconds: 300),
+                          curve: Curves.easeInOutCubic,
+                          child: const Icon(Icons.swap_horiz),
+                        ),
+                      ),
+                    ),
+                    Expanded(child: _currency(false)),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                _screen == 0
-                    ? 'Официальные курсы Национального банка Молдовы'
-                    : 'Курс 1 $_from в $_to · ${_screen == 1 ? 7 : 30} календарных дней',
-                style: const TextStyle(color: Color(0xff617386), height: 1.5),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(child: _currency(true)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: IconButton(
-                      key: const Key('swap'),
-                      tooltip: 'Поменять валюты',
-                      onPressed: _busy
-                          ? null
-                          : () {
-                              setState(() {
-                                final old = _from;
-                                _from = _to;
-                                _to = old;
-                                _reset();
-                              });
-                              if (_screen > 0) _load(refresh: false);
-                            },
-                      icon: const Icon(Icons.swap_horiz),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  key: const Key('date'),
+                  onPressed: _busy ? null : _pickDate,
+                  icon: const Icon(Icons.event_outlined),
+                  label: Text(
+                    '${_screen == 0 ? 'Дата курса' : 'Период до'} ${displayDate(_date)}',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  Expanded(child: _currency(false)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                key: const Key('date'),
-                onPressed: _busy ? null : _pickDate,
-                icon: const Icon(Icons.event_outlined),
-                label: Text(
-                  '${_screen == 0 ? 'Дата курса' : 'Период до'} ${displayDate(_date)}',
                 ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                const SizedBox(height: 20),
+                if (_screen == 0) ..._converter(),
+                if (_busy) ...[
+                  const SizedBox(height: 22),
+                  LinearProgressIndicator(
+                    value: _total > 0 ? _progress / _total : null,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    _total > 0
+                        ? 'Загружаем историю: $_progress из $_total дней'
+                        : 'Получаем официальный курс…',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                if (_error != null) ...[
+                  const SizedBox(height: 16),
+                  _notice(_error!, error: true),
+                ],
+                if (_screen > 0 && !_busy) ..._analytics(),
+                const SizedBox(height: 24),
+                const Text(
+                  'BNM · Официальный справочный курс\nwww.bnm.md',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xff8ba5b9),
+                    height: 1.6,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              if (_screen == 0) ..._converter(),
-              if (_busy) ...[
-                const SizedBox(height: 22),
-                LinearProgressIndicator(
-                  value: _total > 0 ? _progress / _total : null,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  _total > 0
-                      ? 'Загружаем историю: $_progress из $_total дней'
-                      : 'Получаем официальный курс…',
-                  textAlign: TextAlign.center,
-                ),
               ],
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                _notice(_error!, error: true),
-              ],
-              if (_screen > 0 && !_busy) ..._analytics(),
-              const SizedBox(height: 24),
-              const Text(
-                'BNM · Официальный справочный курс\nwww.bnm.md',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xff738296),
-                  height: 1.6,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
+    ),
+  );
+
+  Widget _hero() => Container(
+    constraints: const BoxConstraints(minHeight: 150),
+    padding: EdgeInsets.only(
+      right: MediaQuery.sizeOf(context).width < 360 ? 114 : 140,
+      bottom: 12,
+      top: 8,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: const Color(0xff6be3bf).withValues(alpha: .12),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: const Color(0xff6be3bf).withValues(alpha: .22),
+            ),
+          ),
+          child: const Text(
+            'BNM • ОБМЕН ВАЛЮТ',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: .8,
+              color: Color(0xff6be3bf),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        AnimatedSwitcher(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 260),
+          child: Text(
+            _screen == 0
+                ? 'Конвертер валют'
+                : _screen == 1
+                ? 'Динамика за неделю'
+                : 'Динамика за месяц',
+            key: ValueKey(_screen),
+            style: TextStyle(
+              fontSize: MediaQuery.sizeOf(context).width < 360 ? 26 : 28,
+              height: 1.12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -.7,
+              color: Color(0xfff4f8ff),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          _screen == 0
+              ? 'Официальный курс.\nИстория и аналитика.'
+              : '1 $_from в $_to\n${_screen == 1 ? 7 : 30} календарных дней',
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xffa7bbcb),
+            height: 1.5,
+          ),
+        ),
+      ],
     ),
   );
 
@@ -358,7 +457,11 @@ class _HomeState extends State<ConverterHome> {
         helperText: 'Точка или запятая · до 4 дробных знаков',
         errorMaxLines: 3,
       ),
-      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+        fontSize: 30,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -.5,
+      ),
     ),
     const SizedBox(height: 20),
     FilledButton.icon(
@@ -388,18 +491,23 @@ class _HomeState extends State<ConverterHome> {
               style: TextStyle(
                 color: _rate?.cached == true
                     ? Colors.orange.shade800
-                    : const Color(0xff008775),
+                    : const Color(0xff6be3bf),
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 10),
-            Text(
-              '${_converted!.replaceAll('.', ',')} $_to',
-              key: const Key('conversionResult'),
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: Color(0xff142638),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${_converted!.replaceAll('.', ',')} $_to',
+                key: const Key('conversionResult'),
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -.8,
+                  color: Color(0xff6be3bf),
+                ),
               ),
             ),
             if (_rate != null) ...[
@@ -412,7 +520,7 @@ class _HomeState extends State<ConverterHome> {
               const SizedBox(height: 4),
               Text(
                 'Получено: ${_rate!.table.fetchedAt.toUtc().toIso8601String().substring(0, 16).replaceAll('T', ' ')} UTC',
-                style: const TextStyle(fontSize: 12, color: Color(0xff617386)),
+                style: const TextStyle(fontSize: 12, color: Color(0xffa7bbcb)),
               ),
               if (_rate!.table.publication != _date) ...[
                 const SizedBox(height: 8),
@@ -438,7 +546,7 @@ class _HomeState extends State<ConverterHome> {
         _card(
           Column(
             children: [
-              const Icon(Icons.query_stats, size: 48, color: Color(0xff7c8e9d)),
+              const Icon(Icons.query_stats, size: 48, color: Color(0xff91a9bc)),
               const SizedBox(height: 12),
               const Text(
                 'Нет данных за этот период',
@@ -491,7 +599,7 @@ class _HomeState extends State<ConverterHome> {
                 Text(
                   '${stats.count}/${history.requestedDays} дней',
                   key: const Key('coverage'),
-                  style: const TextStyle(color: Color(0xff617386)),
+                  style: const TextStyle(color: Color(0xffa7bbcb)),
                 ),
               ],
             ),
@@ -503,7 +611,7 @@ class _HomeState extends State<ConverterHome> {
                   ? 'Есть сохранённые данные · публикации ${displayDate(publications.first)}–${displayDate(publications.last)}'
                   : 'BNM · публикации ${displayDate(publications.first)}–${displayDate(publications.last)}',
               key: const Key('historySource'),
-              style: const TextStyle(fontSize: 12, color: Color(0xff617386)),
+              style: const TextStyle(fontSize: 12, color: Color(0xffa7bbcb)),
             ),
           ],
         ),
@@ -518,7 +626,7 @@ class _HomeState extends State<ConverterHome> {
                   : stats.change.isPositive
                   ? Icons.trending_up
                   : Icons.trending_down,
-              color: const Color(0xff008775),
+              color: const Color(0xff6be3bf),
               size: 36,
             ),
             const SizedBox(width: 16),
@@ -560,7 +668,7 @@ class _HomeState extends State<ConverterHome> {
       const SizedBox(height: 16),
       const Text(
         'Изменение: от первого к последнему доступному наблюдению. Среднее: по показанным дням. Дни без данных остаются пропусками.',
-        style: TextStyle(fontSize: 12, color: Color(0xff617386), height: 1.5),
+        style: TextStyle(fontSize: 12, color: Color(0xffa7bbcb), height: 1.5),
       ),
     ];
   }
@@ -571,7 +679,7 @@ class _HomeState extends State<ConverterHome> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xff617386))),
+          Text(label, style: const TextStyle(color: Color(0xffa7bbcb))),
           const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -584,21 +692,35 @@ class _HomeState extends State<ConverterHome> {
       ),
     ),
   );
-  Widget _card(Widget child) => Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: const Color(0xffe1e8ed)),
+  Widget _card(Widget child) => RevealCard(
+    child: Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xff142b3e).withValues(alpha: .94),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xffc3dfeb).withValues(alpha: .12),
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 22,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: child,
     ),
-    child: child,
   );
   Widget _notice(String text, {bool error = false}) => Semantics(
     liveRegion: true,
     child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: error ? const Color(0xffffeae8) : const Color(0xfffff3d9),
+        color: error ? const Color(0xff3d2230) : const Color(0xff332e21),
+        border: Border.all(
+          color: error ? const Color(0x55ffb4b4) : const Color(0x55ead296),
+        ),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
