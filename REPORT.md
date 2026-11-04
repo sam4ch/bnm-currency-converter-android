@@ -13,7 +13,7 @@ and interface were implemented afresh in Dart. The small Kotlin MainActivity
 file is Flutter's generated Android entry point; application logic and screens
 are written in Dart.
 
-Repository: [CurrencyConverter-Mobile-Lab4](https://github.com/sam4ch/bnm-currency-converter-android).
+Repository: [bnm-currency-converter-android](https://github.com/sam4ch/bnm-currency-converter-android).
 
 ## Data source and limitations
 
