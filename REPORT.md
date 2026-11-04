@@ -1,157 +1,168 @@
-# Отчёт по лабораторной работе 4
+# Lab 4 Report
 
-## Тема и смена языка
+## Topic and change of language
 
-Выбран предусмотренный заданием вариант Б: мобильный конвертер валют,
-расширенный недельной и месячной аналитикой. Это позволяет сравнить
-реализацию знакомой предметной области на другой платформе и языке.
+The selected assignment is option B: a mobile currency converter extended with
+weekly and monthly analytics. This makes it possible to compare implementations
+of a familiar domain on a different platform and in a different language.
 
-Лабораторная 3: C# и ASP.NET Core. Лабораторная 4: Dart и Flutter, **только
-Android** по выбору студента. Код C# не открывался для переноса, не
-копировался и не переводился автоматически. Модели, парсер, арифметика,
-хранилище и интерфейс реализованы заново на Dart. Небольшой Kotlin-файл
-MainActivity — сгенерированная Flutter-точка входа Android; прикладная логика
-и пользовательские экраны находятся в Dart.
+Lab 3 used C# and ASP.NET Core. Lab 4 uses Dart and Flutter, targeting **Android
+only**, as chosen by the student. The C# source was not opened for porting,
+copied, or translated automatically. The models, parser, arithmetic, storage,
+and interface were implemented afresh in Dart. The small Kotlin MainActivity
+file is Flutter's generated Android entry point; application logic and screens
+are written in Dart.
 
-Репозиторий: https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4.
+Repository: [CurrencyConverter-Mobile-Lab4](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4).
 
-## Источник данных и ограничения
+## Data source and limitations
 
-Используется [официальный BNM XML](https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=28.10.2026).
-Национальный банк Молдовы предоставляет справочный курс, а не гарантированную
-цену обмена. Ключ API не нужен. `Value / Nominal` — количество MDL за единицу
-валюты; курс пары вычисляется как отношение нормализованных курсов.
+The app uses the [official BNM XML feed](https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=28.10.2026).
+The National Bank of Moldova provides reference rates rather than guaranteed
+exchange prices. No API key is required. `Value / Nominal` gives the number of
+MDL per unit of a currency; a currency pair's rate is the ratio of its normalized
+rates.
 
-История загружается по отдельным датам из источника: 7 или 30 календарных
-дней, включая конечную дату. Месячный график доступен после первой загрузки,
-без месячного накопления после установки. Одновременно отправляется максимум
-три запроса; тайм-аут каждого — 10 секунд. При ошибке прекращаются следующие
-пакеты запросов и используются доступные сохранённые даты. Доступность BNM
-и длительность первой загрузки зависят от сети.
+History is fetched from the source for individual dates: 7 or 30 calendar days,
+including the end date. The monthly chart is available after the first download,
+without collecting a month of data after installation. At most three requests
+run concurrently, each with a 10-second timeout. On failure, subsequent request
+batches stop and available cached dates are used. BNM availability and the time
+needed for the first download depend on the network.
 
-Каждая точка хранит дату наблюдения и дату публикации ответа BNM. Пропуски
-не подменяются нулём, случайными значениями или интерполяцией. График не
-соединяет линией дни с отсутствующими точками; рядом указано покрытие,
-например 6/7 дней. Повторяющиеся официальные значения могут образовывать
-горизонтальные участки. Интервал дат фактических публикаций показан в UI.
+Each point stores its observation date and the publication date returned by BNM.
+Missing data is not replaced with zero, random values, or interpolation. The
+chart does not draw a line across dates with missing points; coverage, such as
+6/7 days, is displayed alongside it. Repeated official values may form horizontal
+segments. The range of actual publication dates is shown in the UI.
 
-Для конвертации при отсутствии публикации предусмотрен поиск назад до
-31 дня. При ошибке сети поиск прекращается сразу. Кэш с датой позже
-исторического запроса запрещён. Режим сохранённых данных явно обозначается.
+For conversion when no publication is available, the app searches back up to
+31 days. A network failure stops this search immediately. Cached data dated
+later than a historical request cannot be used. Cached-data mode is clearly
+identified.
 
-## Реализация и статистика
+## Implementation and statistics
 
-Три экрана: конвертер, сравнение за неделю, сравнение за месяц. Валюты:
-MDL, EUR, USD, RON, GBP. Сумма положительная, до 10^12 и четырёх дробных
-знаков; принимаются точка и запятая. Будущая дата не выбирается.
+There are three screens: converter, weekly comparison, and monthly comparison.
+Supported currencies are MDL, EUR, USD, RON, and GBP. The amount must be positive,
+no greater than 10^12, and have at most four decimal places; both a dot and a
+comma are accepted. Future dates cannot be selected.
 
-Денежные значения представлены рациональными числами на BigInt.
-Округление выполняется при выводе, середина округляется от нуля. Double
-используется только для координат графика. Одинаковые валюты сохраняют
-введённую точность без запроса источника.
+Monetary values are represented as rational numbers backed by BigInt. Rounding
+occurs when formatting output, with ties rounded away from zero. Double is used
+only for chart coordinates. Converting a currency to itself preserves the
+entered precision without querying the source.
 
-Статистика вычисляется по показанным наблюдениям, отсортированным по дате:
+Statistics are calculated from the displayed observations, sorted by date:
 
-- минимум и максимум — крайние значения показателей;
-- среднее — сумма значений / число доступных наблюдений;
-- абсолютное изменение — последнее значение − первое;
-- процент — абсолютное изменение / первое значение × 100;
-- тенденция — рост, падение или отсутствие изменений по знаку изменения.
+- Minimum and maximum are the lowest and highest observed values.
+- Mean is the sum of values divided by the number of available observations.
+- Absolute change is the last value minus the first value.
+- Percentage change is absolute change / first value × 100.
+- Trend is rising, falling, or unchanged, based on the sign of the change.
 
-Одна точка имеет нулевое изменение; пустой набор не имеет статистики и
-отображает предложение повторить загрузку. Нулевые курсы запрещены, поэтому
-нулевой знаменатель процента не подменяется искусственным значением.
+A single point has zero change. An empty set has no statistics and displays an
+option to retry loading. Zero rates are rejected, so a zero percentage
+denominator is not replaced with an artificial value.
 
-Постоянный кэш использует SharedPreferencesAsync с Android DataStore
-Preferences. В нём сохраняется JSON версии 1, даты, время получения и точные
-числа. Сохраняются до 120 последних дат запросов. Плохой ответ не заменяет
-проверенные данные; повреждённый кэш обрабатывается как отсутствие данных.
-Ошибка записи не отменяет полученный результат и показывается пользователю.
+The persistent cache uses SharedPreferencesAsync with Android DataStore
+Preferences. It stores version 1 JSON, dates, fetch timestamps, and exact
+numbers. Up to 120 recent requested dates are retained. A bad response does not
+replace validated data; a corrupt cache is treated as unavailable data. A write
+failure does not discard a successful result and is reported to the user.
 
-## Инструменты и применение ИИ
+## Tools and use of AI
 
-Код, план, тесты, проверки и документация созданы при помощи Codex в текущем
-чате. Точное имя выбранной модели в интерфейсе не фиксировалось, поэтому оно
-не выдумывается. Antigravity и Copilot в этой лабораторной не использовались.
-Рабочий интерфейс — Codex desktop и PowerShell; сборка — Flutter SDK 3.47.6,
-Dart 3.13.5, Android SDK/Gradle, JDK из Android Studio. Проверка устройства —
-Android SDK ADB, эмулятор Pixel 5, Android 16 API 36.
+Code, planning, tests, validation, and documentation were created with Codex in
+this chat. The exact selected model name was not recorded in the interface and
+is therefore not invented here. Antigravity and Copilot were not used for this
+lab. The working environment was Codex desktop and PowerShell; builds used
+Flutter SDK 3.47.6, Dart 3.13.5, Android SDK/Gradle, and the JDK bundled with
+Android Studio. Device validation used Android SDK ADB and a Pixel 5 emulator
+running Android 16 API 36.
 
-Запросы к ИИ уточнялись через конкретные требования: новый язык без переноса
-старого кода; два периода и точные формулы статистики; внедряемые источник и
-хранилище для тестов; сохранённые данные после перезапуска; проверка на
-устройстве. После генерации выполнялись анализ кода, unit/widget-тесты и
-реальные действия на эмуляторе. Использованные требования и этапы сохранены
-в [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
+AI prompts were refined through concrete requirements: a new language without
+porting old code; two periods and explicit statistical formulas; injectable
+data source and storage for tests; cached data surviving a restart; and device
+validation. Generation was followed by code analysis, unit/widget tests, and
+real emulator interactions. The requirements and stages used are recorded in
+[docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
 
-## Что получилось сразу и что пришлось исправить
+## What worked initially and what needed fixing
 
-Парсер, точная арифметика, расчёт статистики и тестируемое разделение
-источника/хранилища прошли первоначальный набор из 73 unit-тестов. Первый
-debug APK запустился на Android и получил реальный курс BNM.
+The parser, exact arithmetic, statistics, and testable source/storage separation
+passed the initial set of 73 unit tests. The first debug APK launched on Android
+and fetched a real BNM rate.
 
-| Проблема | Наблюдение и исправление |
+| Issue | Observation and fix |
 | --- | --- |
-| Неверное условие предупреждений истории | Ревью обнаружило инверсию проверки пустого списка: предупреждение пропадало при наличии сообщения. Условие исправлено; тесты проверяют сообщение о частичном покрытии и ошибке источника. |
-| Переполнение строки аналитики | Widget-тест на 390×844 обнаружил RenderFlex overflow на 17 px. Row заменён на Wrap с переносом, тест повторно прошёл. |
-| Прокрутка при смене вкладки | После просмотра статистики следующий экран открывался с прежней прокруткой. Добавлен ScrollController со сбросом позиции при переключении; проверено widget-тестом. |
-| Подписи оси графика пересекались с линией | После просмотра Android-скриншота выделен отдельный левый отступ под подписи. |
-| `flutter analyze` падает на кириллице | Ошибка протокола LSP внутри Flutter 3.47.6, [известная проблема](https://github.com/flutter/flutter/issues/191309). Проверка выполняется командой `dart analyze`, без отключения правил анализа. |
-| Gradle отклоняет путь `4 курс` | В gradle.properties добавлен указанный самим Gradle параметр `android.overridePathCheck=true`; debug APK собран. |
-| Release AOT не читает кириллический путь | Добавлен scripts/build-apk.ps1: только текущие исходники копируются во временный ASCII-каталог, APK возвращается в artifacts. Исходный проект не перемещается и не удаляется. Реальная release-сборка прошла. |
+| Incorrect history-warning condition | Review found an inverted empty-list check: a warning disappeared when a message was present. The condition was corrected; tests cover partial-coverage and source-failure warnings. |
+| Analytics row overflow | A widget test at 390×844 found a 17 px RenderFlex overflow. Row was replaced with a wrapping Wrap, and the test passed on rerun. |
+| Scroll position when switching tabs | After viewing statistics, the next screen opened at the previous scroll position. A ScrollController now resets the position on tab changes; a widget test verifies this. |
+| Chart axis labels overlapped the line | Reviewing an Android screenshot led to reserving a separate left margin for labels. |
+| `flutter analyze` fails on Cyrillic paths | An LSP protocol failure in Flutter 3.47.6 is a [known issue](https://github.com/flutter/flutter/issues/191309). Validation uses `dart analyze` without disabling analysis rules. |
+| Gradle rejects the `4 курс` path | The `android.overridePathCheck=true` setting suggested by Gradle itself was added to gradle.properties; the debug APK built successfully. |
+| Release AOT cannot read the Cyrillic path | scripts/build-apk.ps1 copies only the current project source into a temporary ASCII-path directory and returns the APK to artifacts. The original project is neither moved nor deleted. The release build succeeded. |
 
-## Работа с ИИ на новом языке
+## Working with AI in a new language
 
-По наблюдаемому процессу расчётная часть на Dart не потребовала изменения
-способа постановки задачи: явные формулы, примеры Nominal > 1, отрицательные
-кейсы и ожидаемые результаты позволили проверить новый код независимо от
-языка. Для точности понадобилось отдельно указать рациональную арифметику:
-обычный double для денежных вычислений создавал бы риск двоичного округления.
+In the observed workflow, the calculation logic in Dart did not require a new
+way of framing the task: explicit formulas, Nominal > 1 examples, negative
+cases, and expected results made it possible to verify the new code
+independently of the language. Exactness required an explicit requirement for
+rational arithmetic; using ordinary double values for money would introduce
+the risk of binary rounding errors.
 
-Больше усилий потребовали мобильная среда и интерфейс. Вместо серверного
-цикла Razor Pages нужно учитывать состояние Flutter-виджетов, асинхронные
-обновления, прокрутку и ширину телефона. Работающий расчёт и успешная сборка
-не выявили переполнение строки; его обнаружил отдельный widget-тест.
-Android SDK, Gradle, AOT и кириллица в путях добавили настройки, которых не
-было в проверенном .NET-запуске предыдущей лабораторной.
+The mobile environment and interface required more work. Instead of the
+server-side Razor Pages lifecycle, the implementation must account for Flutter
+widget state, asynchronous updates, scrolling, and phone width. Working
+calculations and a successful build did not expose the row overflow; a separate
+widget test found it. Android SDK, Gradle, AOT, and Cyrillic paths introduced
+configuration work that was not present in the validated .NET run of the
+previous lab.
 
-Практический вывод процесса: навык работы с ИИ переносится на новый язык
-через постановку проверяемых требований, чтение ошибок и проверку результата
-в целевой среде. В этой работе наиболее сложной оказалась Android-сборка и
-проверка мобильного состояния, а математические контракты проверились теми
-же предметными примерами. Это вывод по фактическим действиям и результатам;
-личные эмоции студента и измеренное ускорение работы не приписываются.
+The practical observation is that AI-assisted development skills transfer to a
+new language through verifiable requirements, reading errors, and checking the
+result in the target environment. In this lab, Android builds and mobile-state
+validation were the most difficult parts, while the mathematical contracts
+were verified with the same domain examples. This conclusion reflects actual
+actions and results; it does not attribute personal feelings or a measured
+productivity gain to the student.
 
-## Тесты и демонстрация
+## Tests and demonstration
 
-Команда из корня: `flutter test`. В исходной версии прошли **78 тестов**, без
-ошибок и пропусков: разбор XML/HTTP, Nominal, округление и точность,
-валидация, статистика, пустые/частичные данные, офлайн/перезапуск кэша,
-защита хороших данных и пять widget-сценариев. `dart analyze` — замечаний нет.
+Run `flutter test` from the project root. The original version passed **78
+tests**, with no failures or skips: XML/HTTP parsing, Nominal, rounding and
+precision, validation, statistics, empty/partial data, offline/cache restart,
+protection of valid data, and five widget scenarios. `dart analyze` reported no
+issues.
 
-Android-проверка и фактические скриншоты: [docs/ANDROID_VALIDATION.md](docs/ANDROID_VALIDATION.md).
-На защите необходимо открыть работающее приложение на устройстве или
-эмуляторе; скриншоты не заменяют живую демонстрацию.
+Android validation and actual screenshots are recorded in
+[docs/ANDROID_VALIDATION.md](docs/ANDROID_VALIDATION.md). During the lab defense,
+the working app must be opened on a device or emulator; screenshots do not
+replace a live demonstration.
 
-## Обновление UI 4 ноября 2026
+## UI update — November 4, 2026
 
-По запросу студента интерфейс стал динамичнее: добавлены тёмный градиент,
-мятные акценты, плавающая 3D-иллюстрация, полупрозрачные карточки, анимация
-смены заголовка, поворот кнопки обмена валют и постепенная отрисовка графика.
-PNG создан встроенным генератором изображений ИИ; [полный промпт](docs/ASSETS.md)
-сохранён. Анимации реализованы средствами Flutter, математическая часть и
-источник курсов остались прежними.
+At the student's request, the interface gained a dark gradient, mint accents,
+a floating 3D illustration, translucent cards, animated heading changes,
+a rotating currency-swap button, and a progressively drawn chart. The PNG was
+created with the built-in AI image generator; the [full prompt](docs/ASSETS.md)
+is saved. Animations use Flutter, while the calculation logic and rate source
+remain unchanged.
 
-Фон отделён от формы, не принимает нажатия и не озвучивается экранным диктором.
-При системном отключении анимаций декоративное движение останавливается.
-Два новых widget-теста проверяют движение с работающей конвертацией и
-изменение системной настройки во время работы. Итог: **80/80 тестов**,
-`dart analyze` — без замечаний. [Проверка нового Android UI](docs/UI_VALIDATION.md)
-и [инструкция для настоящего телефона](docs/PHONE_SETUP.md) включены в репозиторий.
+The background is separated from the form, receives no taps, and is excluded
+from screen-reader output. Disabling animations in system settings stops the
+decorative movement. Two new widget tests verify motion while conversion
+remains usable and a system-setting change while the app is running. The final
+result is **80/80 passing tests**, with no `dart analyze` issues.
+[Updated Android UI validation](docs/UI_VALIDATION.md) and
+[physical-phone setup instructions](docs/PHONE_SETUP.md) are included in the
+repository.
 
 ## Git
 
-- `b38daf6`: начальный Android-каркас и требования.
-- `feature/android-converter`: новая реализация; [PR №1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1).
-- `tests/android-converter`: unit/widget-тесты, исправления, скрипт сборки и отчёт; [PR №2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
-- Слияния в main выполняются через PR с сохранением этапов истории.
+- `b38daf6`: initial Android scaffold and requirements.
+- `feature/android-converter`: new implementation; [PR #1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1).
+- `tests/android-converter`: unit/widget tests, fixes, build script, and report; [PR #2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
+- Changes are merged into main through PRs, preserving the history of each stage.

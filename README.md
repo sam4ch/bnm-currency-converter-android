@@ -1,35 +1,38 @@
-# Курс BNM для Android
+# BNM Exchange Rates for Android
 
-**Лабораторная 4 · Flutter / Dart · Android**
+**Lab 4 · Flutter / Dart · Android**
 
-Конвертер MDL, EUR, USD, RON и GBP с аналитикой валютной пары за **7 и 30 дней**.
-Новая реализация на Dart: код третьей лабораторной на C# не использовался.
+Convert MDL, EUR, USD, RON, and GBP and explore currency-pair trends over **7 and 30 days**.
+This is a new Dart implementation; no C# code from Lab 3 was reused.
 
-<img src="docs/screenshots/ui-v2-initial.png" alt="Обновлённый Android конвертер с плавающей иллюстрацией" width="340" />
+<img src="docs/screenshots/ui-v2-initial.png" alt="Updated Android converter with a floating illustration" width="340" />
 
-Версия **1.1.0**: тёмный градиент, мятные акценты, полупрозрачные карточки,
-плавающая 3D-иллюстрация валют, плавное появление результата и отрисовка графика.
-Системное отключение анимаций учитывается. Иллюстрация создана ИИ;
-[инструмент, файл и полный промпт](docs/ASSETS.md) сохранены для отчёта.
+Version **1.1.0** introduces a dark gradient, mint accents, translucent cards,
+a floating 3D currency illustration, and animated results and charts.
+The app respects the system's reduced-motion setting. The illustration was generated
+with AI; its [tool, file, and complete prompt](docs/ASSETS.md) are documented.
 
-## Возможности
+The documentation is in English. The Android interface and original device
+captures are in Russian.
 
-| Экран | Возможности |
+## Features
+
+| Screen | Features |
 | --- | --- |
-| Конвертер | Сумма, смена валют, дата, точный результат, дата публикации и время получения |
-| 7 дней | Недельный график, минимум, максимум, среднее, абсолютное/процентное изменение и тенденция |
-| 30 дней | Месячная аналитика, доступная сразу после загрузки истории |
-| Без сети | Постоянный кэш после перезапуска, видимые даты и режим сохранённых данных |
+| Converter | Amount entry, currency swap, date selection, exact result, publication date, and retrieval time |
+| 7 days | Weekly chart, minimum, maximum, mean, absolute/percentage change, and trend |
+| 30 days | Monthly analytics available as soon as historical data has loaded |
+| Offline | Persistent cache across restarts, visible dates, and a clearly marked saved-data mode |
 
-Источник — [официальный BNM XML](https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=28.10.2026), API-ключ не нужен.
-История загружается по датам. Если данные доступны не за все дни, показано
-покрытие; пропуски не заполняются вымышленными значениями.
-Курс справочный. Денежная арифметика — точные рациональные числа BigInt.
+Data comes from the [official BNM XML feed](https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=28.10.2026); no API key is required.
+Historical data is requested for each date. When some days are unavailable,
+the app shows coverage and leaves gaps instead of inventing values.
+Rates are for reference. Monetary calculations use exact rational numbers backed by BigInt.
 
-## Запуск в VS Code
+## Run in VS Code
 
-Установите Flutter/Dart extensions, Flutter SDK и Android SDK. Откройте папку
-проекта, затем терминал PowerShell:
+Install the Flutter/Dart extensions, Flutter SDK, and Android SDK. Open the
+project folder, then run these commands in a PowerShell terminal:
 
 ```powershell
 Set-Location -LiteralPath 'C:\Downloads\Study\4 курс\PSI\lab4'
@@ -38,94 +41,96 @@ flutter devices
 flutter run -d emulator-5554
 ```
 
-Если эмулятор ещё не запущен:
+If the emulator is not running yet:
 
 ```powershell
 flutter emulators
 flutter emulators --launch Pixel_5
 ```
 
-Здесь `Pixel_5` и `emulator-5554` — имена проверенного локального эмулятора.
-На другом компьютере используйте значения из `flutter emulators`/`flutter devices`.
-Для телефона включите отладку по USB и используйте его ID из `flutter devices`.
-В VS Code можно выбрать Android-устройство в строке состояния и нажать F5.
+`Pixel_5` and `emulator-5554` identify the local emulator used for validation.
+On another machine, use the values reported by `flutter emulators` and `flutter devices`.
+For a physical phone, enable USB debugging and use its ID from `flutter devices`.
+In VS Code, you can also select an Android device in the status bar and press **F5**.
 
 ## APK
 
-**Установка на настоящий телефон:** скопируйте APK в «Загрузки» Android,
-откройте его файловым менеджером и нажмите «Установить». Пошагово, включая
-USB-отладку и запуск из VS Code: [инструкция для телефона](docs/PHONE_SETUP.md).
-Требуется Android 7.0 / API 24 или новее.
+**Install on a physical phone:** copy the APK to the Android Downloads folder,
+open it with the file manager, and tap Install. For detailed steps, USB debugging,
+and VS Code instructions, see the [phone setup guide](docs/PHONE_SETUP.md).
+Android 7.0 / API 24 or later is required.
 
-Проверенный release APK создаётся в `artifacts/CurrencyInsights-Android.apk`.
-Собрать его из исходников:
+The validated release APK is generated at `artifacts/CurrencyInsights-Android.apk`.
+To build it from source:
 
 ```powershell
 .\scripts\build-apk.ps1
 ```
 
-Скрипт собирает во временном каталоге с латинским путём и возвращает APK в
-`artifacts`, не перемещая исходники. Это нужно для Flutter 3.47.6 на Windows:
-AOT-компилятор не читает кириллический путь `4 курс`. Для пути без кириллицы
-также работает обычная команда `flutter build apk --release`.
-Каталог `artifacts` не коммитится; размер, SHA256 и время сборки сохраняются
-локально в `artifacts/build-info.json`. APK подписан учебным debug-ключом
-сгенерированного Android-проекта.
+The script builds in a temporary directory with an ASCII path and copies the APK
+back to `artifacts` without moving the source files. This is needed for Flutter
+3.47.6 on Windows: its AOT compiler cannot read the Cyrillic `4 курс` path.
+For a project path without Cyrillic characters, the standard
+`flutter build apk --release` command also works.
+The `artifacts` directory is not committed. The file size, SHA256, and build time
+are saved locally in `artifacts/build-info.json`. The APK uses the generated
+Android project's debug signing key for this lab.
 
-Установка на подключённое Android-устройство:
+To install on a connected Android device:
 
 ```powershell
 adb install -r .\artifacts\CurrencyInsights-Android.apk
 ```
 
-## Проверки
+## Validation
 
 ```powershell
 flutter test
 dart analyze
 ```
 
-**80/80 тестов прошли, 0 пропусков. Анализатор не нашёл замечаний.**
-Unit-тесты не обращаются к BNM. Семь widget-тестов проверяют интерфейс при
-размере 390×844, включая работу формы при движущемся фоне и остановку
-анимаций по системной настройке. Проверка обновлённого APK на Android-эмуляторе:
-[UI версии 1.1](docs/UI_VALIDATION.md). Исходная проверка кэша, режима полёта
-и перезапуска сохранена в [протоколе версии 1.0](docs/ANDROID_VALIDATION.md).
+**80/80 tests passed, with no skips. The analyzer reported no issues.**
+Unit tests do not contact BNM. Seven widget tests exercise the UI at 390×844,
+including form interaction while the background moves and stopping animations
+when the system preference changes. The updated APK was checked on an Android
+emulator: [UI version 1.1 validation](docs/UI_VALIDATION.md). The original cache,
+airplane-mode, and restart checks are preserved in the
+[version 1.0 validation report](docs/ANDROID_VALIDATION.md).
 
-В установленном Flutter 3.47.6 команда `flutter analyze` падает на кириллице
-в пути ([известная проблема](https://github.com/flutter/flutter/issues/191309));
-используйте `dart analyze`. Ошибки проверок не подавляются.
+In the installed Flutter 3.47.6 SDK, `flutter analyze` crashes when the path
+contains Cyrillic characters ([known issue](https://github.com/flutter/flutter/issues/191309));
+use `dart analyze`. Validation errors are not suppressed.
 
-## Кэш и правила аналитики
+## Cache and analytics rules
 
-Данные хранятся во внутреннем Android DataStore через SharedPreferencesAsync,
-ключ `bnm_cache_v1`. Сохраняются до 120 дат запросов, версия JSON, реальные
-публикации и время получения. Перезапуск приложения кэш не удаляет;
-удаление приложения или очистка его данных удаляет кэш.
+Data is stored in Android DataStore through SharedPreferencesAsync under the key
+`bnm_cache_v1`. The cache retains up to 120 request dates, a JSON schema version,
+actual publications, and retrieval timestamps. Restarting the app preserves the
+cache; uninstalling the app or clearing its data removes it.
 
-Среднее считается по доступным наблюдениям. Изменение — от первого к
-последнему значению; процент — изменение / первое значение × 100. Пустой
-набор не имеет статистики, одна точка имеет нулевое изменение. Включены
-конечная дата и 6/29 предыдущих дней. Дата по умолчанию — календарная дата
-Android-устройства; будущая дата запрещена.
+The mean uses available observations. Change is the last value minus the first;
+percentage change is change / first value × 100. An empty series has no statistics,
+and a single point has zero change. Each period includes the end date and the
+preceding 6 or 29 days. The default date is the Android device's calendar date;
+future dates are rejected.
 
-## Структура и материалы для защиты
+## Project structure and lab presentation
 
 ```text
-lib/domain/       точные числа, валидация, модели, статистика
-lib/data/         BNM XML/HTTP, постоянный кэш, история
-lib/ui/           три экрана и график
-assets/           сгенерированная прозрачная иллюстрация
-android/          единственная целевая платформа
-test/             unit и widget тесты
-scripts/          сборка Android APK
-docs/             требования и реальные результаты
-REPORT.md         отчёт об ИИ, ошибках и смене языка
+lib/domain/       exact numbers, validation, models, statistics
+lib/data/         BNM XML/HTTP, persistent cache, historical data
+lib/ui/           three screens and chart
+assets/           generated transparent illustration
+android/          the only target platform
+test/             unit and widget tests
+scripts/          Android APK build script
+docs/             requirements and observed results
+REPORT.md         report on AI use, fixes, and the language change
 ```
 
-- [Отчёт](REPORT.md), [требования](docs/REQUIREMENTS.md), [Android-проверка](docs/ANDROID_VALIDATION.md), [запуск на телефоне](docs/PHONE_SETUP.md).
-- [PR реализации №1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1) и [PR тестов №2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
-- Генерация и ревью — Codex в текущем чате. Точное имя модели в UI не фиксировалось.
-- Проверено: Flutter 3.47.6 / Dart 3.13.5, Pixel 5 AVD, Android 16 API 36.
+- [Report](REPORT.md), [requirements](docs/REQUIREMENTS.md), [Android validation](docs/ANDROID_VALIDATION.md), and [phone setup](docs/PHONE_SETUP.md).
+- [Implementation PR #1](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/1) and [test PR #2](https://github.com/sam4ch/CurrencyConverter-Mobile-Lab4/pull/2).
+- Generation and review were performed with Codex in this chat. The exact model name selected in the UI was not recorded.
+- Validated with Flutter 3.47.6 / Dart 3.13.5, Pixel 5 AVD, and Android 16 / API 36.
 
-На защите нужно запустить приложение: скриншотов недостаточно.
+Run the working app during the lab presentation; screenshots alone are not sufficient.
