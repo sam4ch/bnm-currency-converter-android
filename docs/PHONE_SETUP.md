@@ -1,26 +1,31 @@
-# Запуск на настоящем Android-телефоне
+# Running on a physical Android phone
 
-## Просто установить готовое приложение
+## Install the ready-to-use app
 
-Требуется Android 7.0 / API 24 или новее.
+Requires Android 7.0 / API 24 or later.
 
-1. На компьютере возьмите файл `artifacts/CurrencyInsights-Android.apk` из папки лабораторной.
-2. Подключите телефон к компьютеру USB-кабелем. В уведомлении USB на телефоне выберите **Передача файлов**.
-3. Скопируйте APK в папку **Download** телефона. Также можно передать файл через облачное хранилище.
-4. На телефоне откройте **Файлы → Загрузки**, нажмите APK и выберите **Установить**.
-5. Если Android запросит разрешение, разрешите установку приложений из этого источника для выбранного файлового менеджера. Название пункта зависит от производителя.
-6. Откройте **Курс BNM**. Для первой загрузки курсов нужен интернет; загруженные данные сохраняются для работы без сети.
+1. On your computer, find `artifacts/CurrencyInsights-Android.apk` in the lab folder.
+2. Connect the phone to your computer with a USB cable. In the phone's USB notification, select **File transfer**.
+3. Copy the APK to the phone's **Download** folder. You can also transfer the file through cloud storage.
+4. On the phone, open **Files → Downloads**, tap the APK, and select **Install**.
+5. If Android asks for permission, allow installation from this source for the selected file manager. The setting's name depends on the manufacturer.
+6. Open **Курс BNM** (BNM Rates). The first exchange-rate download requires internet access; downloaded data is saved for offline use.
 
-Для этого способа Flutter, Android Studio и режим разработчика на телефоне не нужны. После установки приложение запускается самостоятельно, компьютер можно отключить. APK — учебная release-сборка с debug-подписью.
+This method does not require Flutter, Android Studio, or developer mode on
+the phone. Once installed, the app runs independently and you can disconnect
+the computer. The APK is a release build signed with a debug key for this lab.
 
-Если Android предлагает обновить уже установленную версию, соглашайтесь: кэш сохранится при совместимой подписи. Если сообщает о конфликте подписи, не удаляйте старую версию без необходимости: удаление также удаляет её локальный кэш.
+If Android offers to update an existing installation, accept: the cache is
+preserved when signatures are compatible. If it reports a signature conflict,
+avoid uninstalling the old version unnecessarily: uninstalling also deletes
+its local cache.
 
-## Запуск из VS Code с обновлением кода
+## Run from VS Code while editing code
 
-1. На телефоне откройте **Настройки → О телефоне → Номер сборки** и нажмите семь раз. У Samsung номер сборки обычно находится внутри **Сведения о ПО**. Расположение может отличаться.
-2. Откройте появившийся раздел **Для разработчиков** и включите **Отладка по USB**.
-3. Подключите телефон кабелем, который поддерживает передачу данных. Разблокируйте экран и подтвердите запрос **Разрешить отладку по USB** для своего компьютера.
-4. Откройте папку лабораторной в VS Code. В терминале PowerShell выполните:
+1. On the phone, open **Settings → About phone → Build number** and tap it seven times. On Samsung devices, Build number is usually under **Software information**. The location may vary.
+2. Open the newly available **Developer options** section and enable **USB debugging**.
+3. Connect the phone using a cable that supports data transfer. Unlock the screen and approve the **Allow USB debugging** prompt for your computer.
+4. Open the lab folder in VS Code. In the PowerShell terminal, run:
 
 ```powershell
 Set-Location -LiteralPath 'C:\Downloads\Study\4 курс\PSI\lab4'
@@ -28,34 +33,43 @@ Set-Location -LiteralPath 'C:\Downloads\Study\4 курс\PSI\lab4'
 & 'C:\Users\SamirPula\flutter\bin\flutter.bat' devices
 ```
 
-Найдите строку своего телефона. Скопируйте его ID и подставьте вместо `PHONE_ID`:
+Find the entry for your phone. Copy its ID and substitute it for `PHONE_ID`:
 
 ```powershell
 & 'C:\Users\SamirPula\flutter\bin\flutter.bat' run -d PHONE_ID
 ```
 
-Не используйте `emulator-5554`: это ID эмулятора. Пока команда работает, `r` в терминале применяет изменения Dart через hot reload, `R` перезапускает приложение, `q` завершает сеанс запуска. В VS Code также можно выбрать телефон в строке состояния и нажать **F5** с установленными расширениями Flutter/Dart.
+Do not use `emulator-5554`: that is the emulator's ID. While the command is
+running, press `r` in the terminal to apply Dart changes through hot reload,
+`R` to restart the app, or `q` to end the run session. With the Flutter/Dart
+extensions installed, you can also select the phone in VS Code's status bar
+and press **F5**.
 
-## Если телефон не появился
+## If the phone does not appear
 
-Проверьте подключение:
+Check the connection:
 
 ```powershell
 & 'C:\Users\SamirPula\AppData\Local\Android\Sdk\platform-tools\adb.exe' devices -l
 ```
 
-- `unauthorized`: разблокируйте телефон и подтвердите запрос доверия компьютеру; при необходимости переподключите кабель.
-- Пустой список: попробуйте кабель с передачей данных, другой USB-порт и режим **Передача файлов**. Для некоторых телефонов Windows нужен официальный OEM USB-драйвер производителя.
-- Flutter не находится: используйте полный путь к `flutter.bat`, как в командах выше.
+- `unauthorized`: unlock the phone and approve the computer's authorization prompt; reconnect the cable if needed.
+- Empty list: try a data-capable cable, another USB port, and **File transfer** mode. Some phones require the manufacturer's official OEM USB driver on Windows.
+- Flutter not found: use the full path to `flutter.bat`, as in the commands above.
 
-## Повторная сборка APK после изменения исходников
+## Rebuild the APK after changing source files
 
-Из папки проекта:
+From the project folder:
 
 ```powershell
 .\scripts\build-apk.ps1 -Flutter 'C:\Users\SamirPula\flutter\bin\flutter.bat'
 ```
 
-Новый APK появится по прежнему пути `artifacts/CurrencyInsights-Android.apk`. Скрипт включает иллюстрацию из `assets/` и собирает во временном каталоге без кириллицы. Файл APK и SDK не хранятся в Git: при скачивании исходников с GitHub сначала нужно выполнить сборку.
+The new APK appears at the same path: `artifacts/CurrencyInsights-Android.apk`.
+The script includes the illustration from `assets/` and builds in a temporary
+directory without Cyrillic characters. The APK and SDK are not stored in Git:
+after downloading the source from GitHub, build the APK first.
 
-Официальные инструкции: [настройка физического Android-устройства](https://developer.android.com/studio/run/device), [режим разработчика](https://developer.android.com/studio/debug/dev-options), [Flutter для Android](https://docs.flutter.dev/platform-integration/android/setup).
+Official instructions: [physical Android device setup](https://developer.android.com/studio/run/device),
+[developer options](https://developer.android.com/studio/debug/dev-options),
+[Flutter for Android](https://docs.flutter.dev/platform-integration/android/setup).

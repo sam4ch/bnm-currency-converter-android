@@ -1,34 +1,34 @@
-# Требования лабораторной 4
+# Lab 4 Requirements
 
-Источник: Лаб4_мобильное_приложение_ТЗ.docx. Вариант Б, только Android,
-Flutter/Dart. В лабораторной 3 был C#. Её исходники не используются и не
-переводятся; реализация создаётся заново на Dart.
+Source: Лаб4_мобильное_приложение_ТЗ.docx. Option B, Android only,
+Flutter/Dart. Lab 3 used C#. Its source is not reused or translated; the
+implementation is written afresh in Dart.
 
-- Новый отдельный репозиторий. Этапы в отдельных ветках, слияния через PR.
-- Конвертация MDL/EUR/USD/RON/GBP, сумма, выбранная дата, смена валют.
-- Отдельные экраны за 7 и 30 дней: график, минимум, максимум, среднее,
-  абсолютное и процентное изменение, явная тенденция.
-- История BNM загружается по датам, без ожидания месяца после установки.
-- Постоянный кэш; офлайн и перезапуск; дата актуальности видна.
-- Ошибки сети, пустые/повреждённые данные обрабатываются без падения.
-- Unit-тесты XML, статистики, пустых данных и валидации; одна команда.
-- Реальный запуск на Android-устройстве/эмуляторе, проверка отсутствия сети.
-- REPORT.md: тема, смена языка, источник и ограничения, IDE/ИИ/модели,
-  реальные ошибки/исправления и содержательное сравнение работы с ИИ
-  на новом языке. Личные впечатления студента не выдумывать.
+- A new, separate repository. Work in separate branches, merging through PRs.
+- MDL/EUR/USD/RON/GBP conversion with an amount, selected date, and currency swapping.
+- Separate 7-day and 30-day screens: chart, minimum, maximum, mean, absolute
+  and percentage change, and an explicit trend.
+- Fetch BNM history by date without waiting a month after installation.
+- Persistent cache, offline operation, and restart support; visible data dates.
+- Handle network errors and empty/corrupt data without crashing.
+- Unit tests for XML, statistics, empty data, and validation, run with one command.
+- Run on an Android device/emulator and check behavior without a network connection.
+- REPORT.md: topic, language change, source and limitations, IDE/AI/models,
+  actual errors/fixes, and a substantive comparison of working with AI in a new
+  language. Do not invent the student's personal impressions.
 
-## Этапы
+## Stages
 
-1. Android-каркас, новый GitHub-репозиторий и initial commit.
-2. feature/android-converter: расчёты, BNM, кэш, UI и аналитика; PR в main.
-3. tests/android-converter: тесты, запуск на Android, README и отчёт; PR в main.
+1. Android scaffold, new GitHub repository, and initial commit.
+2. feature/android-converter: calculations, BNM, cache, UI, and analytics; PR into main.
+3. tests/android-converter: tests, Android run, README, and report; PR into main.
 
-## Расчёты
+## Calculations
 
-Точная арифметика BigInt; double только для графика. Value/Nominal — MDL за
-единицу, курс пары source/target. Период включает конечную дату и 6/29
-предыдущих дней. Статистика по доступным точкам, пропуски и покрытие видны.
-Изменение = последняя − первая; процент = изменение/первая × 100.
-Одна точка: изменение ноль. Пустой набор: статистики нет.
-Фактическая дата публикации хранится отдельно от выбранной даты.
-Не создавать вымышленные точки. Повреждённый ответ не заменяет хороший кэш.
+Exact BigInt arithmetic; double only for the chart. Value/Nominal gives MDL per
+unit, and a pair's rate is source/target. A period includes the end date and the
+preceding 6/29 days. Statistics use available points; gaps and coverage are visible.
+Change = last value − first value; percentage = change/first value × 100.
+One point: zero change. Empty set: no statistics.
+The actual publication date is stored separately from the selected date.
+Do not fabricate points. A corrupt response must not replace a valid cache.

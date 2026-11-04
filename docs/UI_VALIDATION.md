@@ -1,51 +1,53 @@
-# Проверка UI версии 1.1 — 4 ноября 2026
+# UI version 1.1 validation — November 4, 2026
 
-Среда: Flutter 3.47.6 / Dart 3.13.5, Pixel 5 AVD, Android 16 / API 36,
-`emulator-5554`. Собран и установлен release APK версии `1.1.0+2`.
-Физический телефон не подключён и не проверялся.
+Environment: Flutter 3.47.6 / Dart 3.13.5, Pixel 5 AVD, Android 16 / API 36,
+`emulator-5554`. Release APK version `1.1.0+2` was built and installed.
+A physical phone was not connected or tested.
 
-## Что проверено
+## Checks performed
 
 - `dart analyze`: **No issues found**.
-- `flutter test --no-pub --machine`: **80 успешных тестов**, без ошибок и пропусков; локальный протокол `.tools/ui-test-results.jsonl`.
-- Новые widget-тесты проверяют, что декоративный фон действительно меняет положение, а форма продолжает конвертировать сумму; смена системной настройки на reduced motion останавливает движение и постоянное планирование кадров.
-- PNG включён в release APK через `pubspec.yaml` и `scripts/build-apk.ps1`.
-- Установка поверх предыдущего APK через `adb install -r` прошла успешно.
-- Скриншоты трёх экранов и статистики получены через ADB и просмотрены визуально: заголовок читается, график и подписи контрастные, контент прокручивается.
+- `flutter test --no-pub --machine`: **80 passing tests**, with no failures or skips; local log: `.tools/ui-test-results.jsonl`.
+- New widget tests verify that the decorative background changes position while the form still converts an amount; enabling the system reduced-motion setting stops movement and continuous frame scheduling.
+- The PNG is included in the release APK through `pubspec.yaml` and `scripts/build-apk.ps1`.
+- Installation over the previous APK using `adb install -r` succeeded.
+- Screenshots of all three screens and the statistics were captured through ADB and inspected visually: the heading is readable, the chart and labels have clear contrast, and content scrolls.
 
-| Android-сценарий | Наблюдаемый результат |
+| Android scenario | Observed result |
 | --- | --- |
-| Реальный запрос BNM | 100 EUR → 2019,60 MDL; публикация 04.11.2026 |
-| Неделя | 7/7 наблюдений за 29.10–04.11.2026 |
-| Месяц | 30/30 наблюдений за 06.10–04.11.2026; график отображается |
-| Статистика месяца | min 20,017900; max 20,224200; mean 20,114120; +0,112000 MDL / +0,56 %; «Рост» |
-| Без сети после остановки процесса | В режиме полёта, с отключёнными Wi-Fi и мобильными данными, после force-stop сохранённый курс восстановлен: 2019,60 MDL |
-| Возврат сети | Повторный запрос снова показал официальный курс BNM |
+| Live BNM request | 100 EUR → 2019,60 MDL; publication date 04.11.2026 |
+| Week | 7/7 observations for 29.10–04.11.2026 |
+| Month | 30/30 observations for 06.10–04.11.2026; chart displayed |
+| Monthly statistics | min 20,017900; max 20,224200; mean 20,114120; +0,112000 MDL / +0,56 %; rising trend |
+| Offline after stopping the process | In airplane mode, with Wi-Fi and mobile data disabled, the cached rate was restored after force-stop: 2019,60 MDL |
+| Network recovery | A new request displayed the official BNM rate again |
 
-Сеть менялась только у собственного эмулятора; исходные состояния режима
-полёта, Wi-Fi и мобильных данных восстановлены в `finally`. Часть истории
-использует уже сохранённые реальные публикации, что явно отмечено в UI.
-Полные наблюдаемые подписи экранов: [ui-v2-results.json](ui-v2-results.json).
-Исходные PNG/XML находятся локально в `.tools/android-qa/`.
+Network settings were changed only on the test emulator; the original
+airplane-mode, Wi-Fi, and mobile-data states were restored in `finally`.
+Some history uses previously saved official publications, as explicitly
+indicated in the UI. Complete observed screen labels:
+[ui-v2-results.json](ui-v2-results.json).
+Original PNG/XML captures are stored locally in `.tools/android-qa/`.
 
-## Сборка
+## Build
 
-Команда: `scripts/build-apk.ps1 -Flutter C:\Users\SamirPula\flutter\bin\flutter.bat`.
-APK: `artifacts/CurrencyInsights-Android.apk`, 55 878 740 байт.
-Подпись учебным debug-ключом. SHA256:
+Command: `scripts/build-apk.ps1 -Flutter C:\Users\SamirPula\flutter\bin\flutter.bat`.
+APK: `artifacts/CurrencyInsights-Android.apk`, 55 878 740 bytes.
+Signed with a debug key for this lab. SHA256:
 
 ```text
 396F5B1A82E63C32DCB602FA67DD48443A5B2C3683DE256646C19D62A99F1E17
 ```
 
-## Скриншоты
+## Screenshots
 
-<img src="screenshots/ui-v2-initial.png" alt="Форма с плавающим фоном" width="300" />
-<img src="screenshots/ui-v2-converter.png" alt="Результат конвертации" width="300" />
-<img src="screenshots/ui-v2-week.png" alt="Недельный график" width="300" />
-<img src="screenshots/ui-v2-month.png" alt="Месячный график" width="300" />
-<img src="screenshots/ui-v2-month-stats.png" alt="Статистика месяца" width="300" />
-<img src="screenshots/ui-v2-offline.png" alt="Сохранённый курс без сети" width="300" />
+<img src="screenshots/ui-v2-initial.png" alt="Form with floating background" width="300" />
+<img src="screenshots/ui-v2-converter.png" alt="Conversion result" width="300" />
+<img src="screenshots/ui-v2-week.png" alt="Weekly chart" width="300" />
+<img src="screenshots/ui-v2-month.png" alt="Monthly chart" width="300" />
+<img src="screenshots/ui-v2-month-stats.png" alt="Monthly statistics" width="300" />
+<img src="screenshots/ui-v2-offline.png" alt="Cached exchange rate while offline" width="300" />
 
-Порядок установки APK и запуска через VS Code: [PHONE_SETUP.md](PHONE_SETUP.md).
-Протокол исходной версии 1.0 сохранён отдельно: [ANDROID_VALIDATION.md](ANDROID_VALIDATION.md).
+APK installation and VS Code launch instructions: [PHONE_SETUP.md](PHONE_SETUP.md).
+The original version 1.0 validation log is preserved separately:
+[ANDROID_VALIDATION.md](ANDROID_VALIDATION.md).
