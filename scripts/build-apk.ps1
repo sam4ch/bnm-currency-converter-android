@@ -9,7 +9,7 @@ $buildRoot = Join-Path ([IO.Path]::GetTempPath()) ('currency_lab4_' + [Guid]::Ne
 $files = & git -c "safe.directory=$($projectRoot.Replace('\','/'))" -C $projectRoot ls-files --cached --others --exclude-standard
 if ($LASTEXITCODE -ne 0) { throw 'Cannot enumerate project source files.' }
 foreach ($relative in $files) {
-    if ($relative -notmatch '^(lib/|android/|pubspec\.yaml$|pubspec\.lock$|analysis_options\.yaml$|\.metadata$)') { continue }
+    if ($relative -notmatch '^(lib/|assets/|android/|pubspec\.yaml$|pubspec\.lock$|analysis_options\.yaml$|\.metadata$)') { continue }
     $source = [IO.Path]::GetFullPath((Join-Path $projectRoot $relative))
     $destination = [IO.Path]::GetFullPath((Join-Path $buildRoot $relative))
     if (-not $source.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Invalid source path.' }
