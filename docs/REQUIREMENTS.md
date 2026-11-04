@@ -1,6 +1,6 @@
 # Lab 4 Requirements
 
-Source: Лаб4_мобильное_приложение_ТЗ.docx. Option B, Android only,
+Source: the supplied Lab 4 mobile application assignment (DOCX). Option B, Android only,
 Flutter/Dart. Lab 3 used C#. Its source is not reused or translated; the
 implementation is written afresh in Dart.
 
